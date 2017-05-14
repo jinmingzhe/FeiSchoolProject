@@ -3,6 +3,7 @@
 import MySQLdb
 import numpy as np
 
+# function my_avg is used for calculate avg value
 def my_avg(horizontal, vertical, ordinate, macAddr):
     conn= MySQLdb.connect(
         host='localhost',
