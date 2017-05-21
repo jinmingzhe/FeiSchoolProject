@@ -12,11 +12,11 @@ def my_avg((horizontal, vertical, ordinate), macAddr):   #求出某一坐标下�
         port = 3306,
         user='root',
         passwd='feifei_1',
-        db ='wifi',
+        db ='namename',
         )
     cur = conn.cursor()
     #cur.execute("select * from wifiset")
-    MySqlSelectDataCM = "select RSSI from wifiset where horizontal = %s and vertical = %s and ordinate = %s and macAddr = %s"
+    MySqlSelectDataCM = "select RSSI from wifidata where horizontal = %s and vertical = %s and ordinate = %s and macAddr = %s"
     #aa = cur.execute("select RSSI from wifiset where horizontal = %s and vertical = %s and ordinate = %s and macAddr = %s",[x,y,z,h])
     aa = cur.execute(MySqlSelectDataCM,[horizontal,vertical,ordinate,macAddr])
     print aa
@@ -41,12 +41,12 @@ def my_avg((horizontal, vertical, ordinate), macAddr):   #求出某一坐标下�
     conn.close()
     #return avg
 
-my_avg((1, 2, 3), '88:25:93:08:73:0c')
+my_avg((0.6, 6.6, 4), '06:19:70:00:3a:58')
 #print m
 
-engine = create_engine("mysql+pymysql://root:feifei_1@localhost/wifi",encoding='utf-8', echo=True)
+engine = create_engine("mysql+pymysql://root:feifei_1@localhost/namename",encoding='utf-8', echo=True)
 metadata = MetaData()
-user = Table('wifiset', metadata,
+user = Table('wifidata', metadata,
             Column('ID', Integer, primary_key=True),
             Column('SSID', LargeBinary(255)),
             Column('RSSI', LargeBinary(255)),
@@ -85,5 +85,8 @@ for i in mac:
 #print maclist            #list列表的mac地址
 setmaclist = list(set(maclist))
 print setmaclist                                       #去重后的mac地址
-
+coo = Session.query(User.horizontal, User.vertical, User.ordinate,).all()
+#print coo
+setcoo = list(set(coo))
+print setcoo                                            #去重后的坐标
 
