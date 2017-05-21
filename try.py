@@ -6,7 +6,7 @@ import sqlalchemy
 from sqlalchemy import create_engine
 from sqlalchemy.orm import mapper, sessionmaker
 from sqlalchemy import Table, MetaData, Column, Integer, String, LargeBinary, Float, DateTime
-def my_avg(horizontal, vertical, ordinate, macAddr):   #求出某一坐标下某一mac地址下场强的均值
+def my_avg((horizontal, vertical, ordinate), macAddr):   #求出某一坐标下某一mac地址下场强的均值
     conn= MySQLdb.connect(
         host='localhost',
         port = 3306,
@@ -27,22 +27,22 @@ def my_avg(horizontal, vertical, ordinate, macAddr):   #求出某一坐标下某
     print list
     newlist = []
     for i in list:
-        newlist.append(i[0])
+        newlist.append(i[0])   #去掉元组
     print newlist
     intlist = map(int, newlist)
     temp = []
     for i in intlist:
         temp.append(i)
-    print temp
+    print temp                  #字符串变为整形
     avg = np.mean(temp)
     print ('chang qiang jun zhi:', avg)
     cur.close()
     conn.commit()
     conn.close()
-    return avg
+    #return avg
 
-m = my_avg(1, 2, 3, '88:25:93:08:73:0c')
-print m
+my_avg((1, 2, 3), '88:25:93:08:73:0c')
+#print m
 
 engine = create_engine("mysql+pymysql://root:feifei_1@localhost/wifi",encoding='utf-8', echo=True)
 metadata = MetaData()
@@ -76,5 +76,14 @@ Session_class = sessionmaker(bind=engine)  # 实例和engine绑定
 Session = Session_class()  # 生成session实例，相当于游标
 #my_user = Session.query(User).filter_by(ID=1).first()  # 查询
 #print(my_user.horizontal, my_user.vertical, my_user.ordinate)
-#print(Session.query(User.macAddr).all() )  #列出mac地址
+mac = []
+mac = Session.query(User.macAddr).all()
+#print(mac)  #列出mac地址
+maclist = []
+for i in mac:
+    maclist.append(i[0])
+#print maclist            #list列表的mac地址
+setmaclist = list(set(maclist))
+print setmaclist                                       #去重后的mac地址
+
 
