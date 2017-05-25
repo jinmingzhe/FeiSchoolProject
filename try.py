@@ -27,18 +27,18 @@ def my_avg((horizontal, vertical, ordinate), macAddr):   #求出某一坐标下�
     print list
     newlist = []
     for i in list:
-        newlist.append(i[0])   #去掉元组
+        newlist.append(i[0])                                                          #去掉元组
     print newlist
     intlist = map(int, newlist)
     temp = []
     for i in intlist:
         temp.append(i)
-    print temp                  #字符串变为整形
+    print temp                                                                         #字符串变为整形
     avg = np.mean(temp)
     print ('chang qiang jun zhi:', avg)
     cur.close()
     conn.commit()
-    conn.close()
+    conn.close()           
     #return avg
 
 my_avg((0.6, 6.6, 4), '06:19:70:00:3a:58')
@@ -82,11 +82,19 @@ mac = Session.query(User.macAddr).all()
 maclist = []
 for i in mac:
     maclist.append(i[0])
-#print maclist            #list列表的mac地址
+#print maclist                                                                         #list列表的mac地址
 setmaclist = list(set(maclist))
-print setmaclist                                       #去重后的mac地址
+print setmaclist                                                                       #去重后的mac地址
 coo = Session.query(User.horizontal, User.vertical, User.ordinate,).all()
 #print coo
 setcoo = list(set(coo))
-print setcoo                                            #去重后的坐标
+print setcoo 
+test = []                                                                           #去重后的坐标
+for x in setcoo: 
+    for z in setmaclist:                                                                  #这里需要去判定x坐标下是否存在mac地址z
+        t = my_avg(x,z)
+        if temp != test:
+            print t
+        else:
+            pass
 
