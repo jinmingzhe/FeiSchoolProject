@@ -6,6 +6,24 @@ import sqlalchemy
 from sqlalchemy import create_engine
 from sqlalchemy.orm import mapper, sessionmaker
 from sqlalchemy import Table, MetaData, Column, Integer, String, LargeBinary, Float, DateTime
+
+
+class User(object):
+    def __init__(self, ID, SSID, RSSI, channel, macAddr, horizontal, vertical, ordinate, time):
+        self.ID = ID
+        self.SSID = SSID
+        self.RSSI = RSSI
+        self.channel = channel
+        self.macAddr = macAddr
+        self.horizontal = horizontal
+        self.vertical = vertical
+        self.ordinate = ordinate
+        self.time = time
+    def __repr__(self):
+        return "<User(ID='%s',  SSID='%s', RSSI='%s', channel='%s', macAddr='%s', horizontal='%s', vertical='%s', ordinate='%s', time='%s')>" % (self.ID, self.SSID, self.RSSI, self.channel, self.macAddr, self.horizontal, self.vertical, self.ordinate, self.time)
+
+
+#mean
 def my_avg((horizontal, vertical, ordinate), macAddr):   #求出某一坐标下某一mac地址下场强的均值
     conn= MySQLdb.connect(
         host='localhost',
@@ -36,13 +54,13 @@ def my_avg((horizontal, vertical, ordinate), macAddr):   #求出某一坐标下�
     #print temp                                                                         #字符串变为整形
     avg = np.mean(temp)                                                                 #求均值
     vare = np.var(temp)                                                                 #求方差
-    print (avg,vare)
+    #print (avg,vare)
     cur.close()
     conn.commit()
     conn.close()           
-    #return avg
+    return (avg,vare)
 
-my_avg((0.6, 6.6, 4), '06:19:70:00:3a:58')
+#my_avg((0.6, 6.6, 4), '06:19:70:00:3a:58')
 #print m
 
 engine = create_engine("mysql+pymysql://root:feifei_1@localhost/wifi",encoding='utf-8', echo=True)
@@ -58,19 +76,7 @@ user = Table('wifiset', metadata,
             Column('ordinate', Float),
             Column('time', DateTime),
         )
-class User(object):
-    def __init__(self, ID, SSID, RSSI, channel, macAddr, horizontal, vertical, ordinate, time):
-        self.ID = ID
-        self.SSID = SSID
-        self.RSSI = RSSI
-        self.channel = channel
-        self.macAddr = macAddr
-        self.horizontal = horizontal
-        self.vertical = vertical
-        self.ordinate = ordinate
-        self.time = time
-    def __repr__(self):
-        return "<User(ID='%s',  SSID='%s', RSSI='%s', channel='%s', macAddr='%s', horizontal='%s', vertical='%s', ordinate='%s', time='%s')>" % (self.ID, self.SSID, self.RSSI, self.channel, self.macAddr, self.horizontal, self.vertical, self.ordinate, self.time)
+
 mapper(User, user)
 Session_class = sessionmaker(bind=engine)  # 实例和engine绑定
 Session = Session_class()  # 生成session实例，相当于游标
@@ -84,16 +90,20 @@ for i in mac:
     maclist.append(i[0])
 #print maclist                                                                         #list列表的mac地址
 setmaclist = list(set(maclist))
-print setmaclist                                                                       #去重后的mac地址
+#print setmaclist                                                                       #去重后的mac地址
 coo = Session.query(User.horizontal, User.vertical, User.ordinate,).all()
 #print coo
 setcoo = list(set(coo))
 print setcoo
-D = {}                                                                           #去重后的坐标
+D = {}  
+print 'start print my_avg'                                                                         #去重后的坐标
 for x in setcoo: 
-    for z in setmaclist:                                                                #这里需要去判定x坐标下是否存在mac地址z
+    for z in setmaclist:
+        #print 'print my_avg ==> ', my_avg(x,z)                                                                #这里需要去判定x坐标下是否存在mac地址z
         D[(x,z)] = my_avg(x,z)
-        #print t
+#print 'print dic ==> ', D
         #m = (x,z)
         #D[m] = t
-print D
+#print 'wo shi feifei'
+for k in D:
+    print k, ':', D[k]
