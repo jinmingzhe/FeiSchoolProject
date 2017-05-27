@@ -12,30 +12,31 @@ def my_avg((horizontal, vertical, ordinate), macAddr):   #求出某一坐标下�
         port = 3306,
         user='root',
         passwd='feifei_1',
-        db ='namename',
+        db ='wifi',
         )
     cur = conn.cursor()
     #cur.execute("select * from wifiset")
-    MySqlSelectDataCM = "select RSSI from wifidata where horizontal = %s and vertical = %s and ordinate = %s and macAddr = %s"
+    MySqlSelectDataCM = "select RSSI from wifiset where horizontal = %s and vertical = %s and ordinate = %s and macAddr = %s"
     #aa = cur.execute("select RSSI from wifiset where horizontal = %s and vertical = %s and ordinate = %s and macAddr = %s",[x,y,z,h])
     aa = cur.execute(MySqlSelectDataCM,[horizontal,vertical,ordinate,macAddr])
-    print aa
+    #print aa
     info = cur.fetchmany(aa)
     list = []
     for ii in info:
         list.append(ii)
-    print list
+    #print list
     newlist = []
     for i in list:
         newlist.append(i[0])                                                          #去掉元组
-    print newlist
+    #print newlist
     intlist = map(int, newlist)
     temp = []
     for i in intlist:
         temp.append(i)
-    print temp                                                                         #字符串变为整形
-    avg = np.mean(temp)
-    print ('chang qiang jun zhi:', avg)
+    #print temp                                                                         #字符串变为整形
+    avg = np.mean(temp)                                                                 #求均值
+    vare = np.var(temp)                                                                 #求方差
+    print (avg,vare)
     cur.close()
     conn.commit()
     conn.close()           
@@ -44,9 +45,9 @@ def my_avg((horizontal, vertical, ordinate), macAddr):   #求出某一坐标下�
 my_avg((0.6, 6.6, 4), '06:19:70:00:3a:58')
 #print m
 
-engine = create_engine("mysql+pymysql://root:feifei_1@localhost/namename",encoding='utf-8', echo=True)
+engine = create_engine("mysql+pymysql://root:feifei_1@localhost/wifi",encoding='utf-8', echo=True)
 metadata = MetaData()
-user = Table('wifidata', metadata,
+user = Table('wifiset', metadata,
             Column('ID', Integer, primary_key=True),
             Column('SSID', LargeBinary(255)),
             Column('RSSI', LargeBinary(255)),
@@ -71,7 +72,6 @@ class User(object):
     def __repr__(self):
         return "<User(ID='%s',  SSID='%s', RSSI='%s', channel='%s', macAddr='%s', horizontal='%s', vertical='%s', ordinate='%s', time='%s')>" % (self.ID, self.SSID, self.RSSI, self.channel, self.macAddr, self.horizontal, self.vertical, self.ordinate, self.time)
 mapper(User, user)
-
 Session_class = sessionmaker(bind=engine)  # 实例和engine绑定
 Session = Session_class()  # 生成session实例，相当于游标
 #my_user = Session.query(User).filter_by(ID=1).first()  # 查询
@@ -88,13 +88,12 @@ print setmaclist                                                                
 coo = Session.query(User.horizontal, User.vertical, User.ordinate,).all()
 #print coo
 setcoo = list(set(coo))
-print setcoo 
-test = []                                                                           #去重后的坐标
+print setcoo
+D = {}                                                                           #去重后的坐标
 for x in setcoo: 
-    for z in setmaclist:                                                                  #这里需要去判定x坐标下是否存在mac地址z
-        t = my_avg(x,z)
-        if temp != test:
-            print t
-        else:
-            pass
-
+    for z in setmaclist:                                                                #这里需要去判定x坐标下是否存在mac地址z
+        D[(x,z)] = my_avg(x,z)
+        #print t
+        #m = (x,z)
+        #D[m] = t
+print D
