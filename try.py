@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 import MySQLdb
+import math
 import numpy as np 
 import sqlalchemy
 from sqlalchemy import create_engine
@@ -20,7 +21,7 @@ class User(object):
         self.ordinate = ordinate
         self.time = time
     def __repr__(self):
-        return "<User(ID='%s',  SSID='%s', RSSI='%s', channel='%s', macAddr='%s', horizontal='%s', vertical='%s', ordinate='%s', time='%s')>" % (self.ID, self.SSID, self.RSSI, self.channel, self.macAddr, self.horizontal, self.vertical, self.ordinate, self.time)
+        return "<User(ID='%s',  SSID='%s', RSSI='%s', channel='%s', macAddr='%s', horizontal='%.2f', vertical='%.2f', ordinate='%.2f', time='%s')>" % (self.ID, self.SSID, self.RSSI, self.channel, self.macAddr, self.horizontal, self.vertical, self.ordinate, self.time)
 
 
 #mean
@@ -58,7 +59,7 @@ def my_avg((horizontal, vertical, ordinate), macAddr):   #求出某一坐标下�
     cur.close()
     conn.commit()
     conn.close()           
-    return (avg,vare)
+    return (avg,vare,len(temp))                                                         #返回均值、方差、rssi的长度
 
 #my_avg((0.6, 6.6, 4), '06:19:70:00:3a:58')
 #print m
@@ -78,13 +79,13 @@ user = Table('wifiset', metadata,
         )
 
 mapper(User, user)
-Session_class = sessionmaker(bind=engine)  # 实例和engine绑定
-Session = Session_class()  # 生成session实例，相当于游标
+Session_class = sessionmaker(bind=engine)                                            # 实例和engine绑定
+Session = Session_class()                                                            # 生成session实例，相当于游标
 #my_user = Session.query(User).filter_by(ID=1).first()  # 查询
 #print(my_user.horizontal, my_user.vertical, my_user.ordinate)
 mac = []
 mac = Session.query(User.macAddr).all()
-#print(mac)  #列出mac地址
+#print(mac)                                                                            #列出mac地址
 maclist = []
 for i in mac:
     maclist.append(i[0])
@@ -96,14 +97,21 @@ coo = Session.query(User.horizontal, User.vertical, User.ordinate,).all()
 setcoo = list(set(coo))
 print setcoo
 D = {}  
-print 'start print my_avg'                                                                         #去重后的坐标
+print 'start print my_avg'                                                              #去重后的坐标
 for x in setcoo: 
     for z in setmaclist:
-        #print 'print my_avg ==> ', my_avg(x,z)                                                                #这里需要去判定x坐标下是否存在mac地址z
+        #print 'print my_avg ==> ', my_avg(x,z)                                         #这里需要去判定x坐标下是否存在mac地址z
         D[(x,z)] = my_avg(x,z)
-#print 'print dic ==> ', D
-        #m = (x,z)
-        #D[m] = t
-#print 'wo shi feifei'
+        if math.isnan(my_avg(x,z)):
+            del D[(x,z)]
+
+#for k in D:
+    #else:
+        #print k, ':', D[k]
 for k in D:
+    #for f in D:
+        #if k != f:
+            #print [D[k],D[f]]
+           # w = (D[k],D[f])
+            #print w[0][1]                                                                            #输出字典
     print k, ':', D[k]
