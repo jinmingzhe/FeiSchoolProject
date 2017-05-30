@@ -102,16 +102,17 @@ for x in setcoo:
     for z in setmaclist:
         #print 'print my_avg ==> ', my_avg(x,z)                                         #这里需要去判定x坐标下是否存在mac地址z
         D[(x,z)] = my_avg(x,z)
-        if math.isnan(my_avg(x,z)):
+        if math.isnan(my_avg(x,z)[0]):
             del D[(x,z)]
 
 #for k in D:
     #else:
         #print k, ':', D[k]
 for k in D:
-    #for f in D:
-        #if k != f:
+    for f in D:
+        if k != f:
             #print [D[k],D[f]]
-           # w = (D[k],D[f])
-            #print w[0][1]                                                                            #输出字典
-    print k, ':', D[k]
+            w = (D[k],D[f])
+            print w
+            print w[0][1]                                                                            #输出字典
+    #print k, ':', D[k]
